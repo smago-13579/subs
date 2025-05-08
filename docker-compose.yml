@@ -1,0 +1,49 @@
+services:
+  subscription:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: subscription_service
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: postgresql_db
+      DB_PORT: 5432
+      DB_NAME: subs_db
+      DB_USER: admin
+      DB_PASS: pass12345
+    ports:
+      - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+    depends_on:
+      - postgres-db
+    volumes:
+      - ~/Desktop/logs:/logs
+    networks:
+      - subs-network
+
+  postgres-db:
+    image: postgres:16.1
+    container_name: postgresql_db
+    restart: always
+    environment:
+      POSTGRES_DB: subs_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: pass12345
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+    volumes:
+      - ~/Desktop/db_volume:/var/lib/postgresql/data
+    networks:
+      - subs-network
+
+networks:
+  subs-network:
+    external: true
